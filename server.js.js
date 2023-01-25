@@ -9,10 +9,12 @@ const models = require("./models");
 const passport = require("passport");
 require("./config/passport")(passport);
 const cors = require("cors");
+const path = require("path");
+const port = process.env.PORT || 8080;
 
 //連結MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/mernDB")
+  .connect(process.env.MONGODB_CONNECTION)
   .then(() => {
     console.log("連結到mongoDB...");
   })
@@ -24,6 +26,7 @@ mongoose
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 //任何跟此路徑有關的都要先經過auth
 app.use("/api/user", authRoute);
@@ -35,11 +38,19 @@ app.use(
   passport.authenticate("jwt", { session: false }),
   courseRoute
 );
-
 //只有登入系統的人才能去新增或註冊課程
-//jwt
+
+//forheroku
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "staging"
+) {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
+}
 
 //不要用到port3000,要跟react錯開
-app.listen(8080, () => {
+app.listen(port, () => {
   console.log("後端伺服器聆聽在port8080...");
 });
