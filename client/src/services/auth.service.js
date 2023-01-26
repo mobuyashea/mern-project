@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "https://mernproject9.herokuapp.com/user";
+const API_URL = "https://mernproject9.herokuapp.com/api/user";
 
 //建構類別
 class AuthService {
